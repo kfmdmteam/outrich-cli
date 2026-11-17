@@ -123,19 +123,19 @@ async function zendesk(c: PullConfig, s: Sink) {
   return api;
 }
 
-/* GitHub. Issues (which include pull requests), pull requests, and their comments, for one repository or every repository of an organization.
+/* GitHub. Issues, pull requests, and their comments, for one repository or every repository of an organization.
    Pagination follows the Link header. https://docs.github.com/en/rest/issues/issues */
 async function github(c: PullConfig, s: Sink) {
   const target = need(c, "owner/repo, or an organization name");
   const api = new Client(c.baseUrl ?? "https://api.github.com", { authorization: `Bearer ${env("OUTRICH_GITHUB_TOKEN")}`, accept: "application/vnd.github+json", "x-github-api-version": "2022-11-28", "user-agent": "outrich-cli" }, "github");
-  const linked = (first: string) => async (cursor: string | null): Promise<Page> => {
+  const linked = (first: string, keep: (x: Json) => boolean = () => true) => async (cursor: string | null): Promise<Page> => {
     const { json, headers } = await api.get(cursor ?? first);
-    return { items: Array.isArray(json) ? json : [], next: /<([^<>]+)>;\s*rel="next"/.exec(headers.get("link") ?? "")?.[1] ?? null };
+    return { items: (Array.isArray(json) ? json : []).filter(keep), next: /<([^<>]+)>;\s*rel="next"/.exec(headers.get("link") ?? "")?.[1] ?? null };
   };
   const repos = target.includes("/") ? [target] : (await s.all(linked(`/orgs/${q(target)}/repos?per_page=100`))).map((r) => r.full_name as string);
   for (const r of repos) {
     const name = (kind: string) => `${r.replace("/", "__")}.${kind}`;
-    await s.drain(`${r}:issues`, name("issues"), linked(`/repos/${r}/issues?state=all&per_page=100`));
+    await s.drain(`${r}:issues`, name("issues"), linked(`/repos/${r}/issues?state=all&per_page=100`, (x) => !x.pull_request)); // the issues endpoint also returns pull requests: those go in the pulls file only
     await s.drain(`${r}:pulls`, name("pulls"), linked(`/repos/${r}/pulls?state=all&per_page=100`));
     await s.drain(`${r}:issue_comments`, name("issue_comments"), linked(`/repos/${r}/issues/comments?per_page=100`));
     await s.drain(`${r}:review_comments`, name("review_comments"), linked(`/repos/${r}/pulls/comments?per_page=100`));

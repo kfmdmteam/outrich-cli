@@ -383,7 +383,7 @@ outrich pull <system> -o <dir> [--target T] [--base-url U] [--since DATE] [--obj
 
 Exports from one of your own systems to JSON Lines files, using an API token that you create in that system's admin panel. **This is the only command that uses the network.**
 
-**The connectors are beta.** They were written against the vendors' published API documentation and are tested against local mock servers that replay the documented response shapes (pagination, HTTP 429 with Retry-After, errors). They have not yet been run against live accounts on every plan and API version. Check the record counts of a pull against what the system itself shows before relying on it.
+**The connectors are beta.** They were written against the vendors' published API documentation and are tested against local mock servers that replay the documented response shapes (pagination, HTTP 429 with Retry-After, errors). The GitHub connector has also been run against a live public repository (2026-11-17): issue and pull request counts matched GitHub's own. The others have not yet been run against live accounts. Check the record counts of a pull against what the system itself shows before relying on it.
 
 | System | Token (environment) | `--target` | What is exported |
 |---|---|---|---|
