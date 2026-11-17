@@ -1,0 +1,40 @@
+{
+  "name": "outrich",
+  "version": "0.1.0",
+  "description": "Local command line data tools from Outrich Data: redact personal data by field and in free text, check what remains, scan for leaked credentials, build and verify delivery manifests, profile and convert large exports. Constant memory. Local by default; optional beta connectors export from your own systems.",
+  "license": "MIT",
+  "author": "Outrich Data (https://outrichdata.com)",
+  "homepage": "https://outrichdata.com/tools",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kfmdmteam/outrich-cli.git"
+  },
+  "type": "module",
+  "bin": {
+    "outrich": "dist/outrich.mjs"
+  },
+  "files": [
+    "dist/outrich.mjs",
+    "dist/connectors.mjs",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "BENCH.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepare": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/build.mjs && node --test",
+    "bench": "node scripts/build.mjs && node scripts/bench.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "esbuild": "^0.25.0",
+    "fflate": "^0.8.3",
+    "typescript": "^5.7.0"
+  }
+}
